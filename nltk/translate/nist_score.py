@@ -161,9 +161,13 @@ def corpus_nist(list_of_references, hypotheses, n=5):
     # Final NIST micro-average mean aggregation.
     nist_precision = 0
     for i in nist_precision_numerator_per_ngram:
+        # An order with no hypothesis n-grams has no precision to measure; it
+        # contributes 0, as the per-reference computation above does.
+        _denominator = nist_precision_denominator_per_ngram[i]
         precision = (
-            nist_precision_numerator_per_ngram[i]
-            / nist_precision_denominator_per_ngram[i]
+            0
+            if _denominator == 0
+            else nist_precision_numerator_per_ngram[i] / _denominator
         )
         nist_precision += precision
     # Eqn 3 in Doddington(2002)

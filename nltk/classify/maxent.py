@@ -1071,7 +1071,7 @@ def train_maxent_classifier_with_gis(
     # feature, and weight=-infinity for each unattested feature.
     weights = numpy.zeros(len(empirical_fcount), "d")
     for fid in unattested:
-        weights[fid] = numpy.NINF
+        weights[fid] = -numpy.inf
     classifier = ConditionalExponentialClassifier(encoding, weights)
 
     # Take the log of the empirical fcount.
@@ -1193,7 +1193,7 @@ def train_maxent_classifier_with_iis(
     # feature, and weight=-infinity for each unattested feature.
     weights = numpy.zeros(len(empirical_ffreq), "d")
     for fid in unattested:
-        weights[fid] = numpy.NINF
+        weights[fid] = -numpy.inf
     classifier = ConditionalExponentialClassifier(encoding, weights)
 
     if trace > 0:
