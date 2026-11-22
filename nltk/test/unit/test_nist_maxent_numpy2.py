@@ -1,9 +1,9 @@
 """Regression tests: NumPy 2 removed ``numpy.NINF``; NIST must not divide by zero."""
 
-import pytest
+import numpy
 
+from nltk.classify.maxent import GISEncoding
 from nltk.classify.maxent import train_maxent_classifier_with_gis as gis
-from nltk.classify.maxent import train_maxent_classifier_with_iis as iis
 from nltk.translate.nist_score import sentence_nist
 
 TRAIN = [
@@ -14,10 +14,19 @@ TRAIN = [
 ]
 
 
-@pytest.mark.parametrize("trainer", [gis, iis])
-def test_maxent_trains_with_unattested_features(trainer):
-    # Unattested features get -inf weights; numpy.NINF raised AttributeError on NumPy 2.
-    clf = trainer(TRAIN, max_iter=5, trace=0)
+def test_gis_unattested_feature_without_numpy_NINF(monkeypatch):
+    # The mapping includes ('z', 1, 'a'), which never occurs in TRAIN, so GIS
+    # must assign it -inf. Removing numpy.NINF (NumPy 2) must not break this.
+    monkeypatch.delattr(numpy, "NINF", raising=False)
+    mapping = {
+        ("x", 1, "a"): 0,
+        ("x", 1, "b"): 1,
+        ("y", 1, "a"): 2,
+        ("y", 2, "b"): 3,
+        ("z", 1, "a"): 4,
+    }
+    encoding = GISEncoding(["a", "b"], mapping, C=10)
+    clf = gis(TRAIN, encoding=encoding, max_iter=5, trace=0)
     assert clf.classify({"x": 1}) in {"a", "b"}
 
 

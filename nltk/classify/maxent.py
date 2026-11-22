@@ -1075,7 +1075,9 @@ def train_maxent_classifier_with_gis(
     classifier = ConditionalExponentialClassifier(encoding, weights)
 
     # Take the log of the empirical fcount.
-    log_empirical_fcount = numpy.log2(empirical_fcount)
+    # log2(0) is expected for unattested features (their weight is -inf).
+    with numpy.errstate(divide="ignore"):
+        log_empirical_fcount = numpy.log2(empirical_fcount)
     del empirical_fcount
 
     if trace > 0:
